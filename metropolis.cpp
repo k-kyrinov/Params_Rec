@@ -2,6 +2,7 @@
 #include "functions.h"
 #include "matrix.h"
 #include <iostream>
+#include <mutex>
 
 double x_a[51] = {1.97376115143293e-001,2.39192422628323e-001,2.98565164093573e-001,3.58271550162608e-001,4.29917884243487e-001,
                   5.15891890127776e-001,6.19058783209113e-001,7.42856758173555e-001,8.91411572102221e-001,1.06967404164358e+000,
@@ -97,12 +98,6 @@ double Metropolis::Lagutin_mod(int &i){
     return std::pow(m,-2)*(1/rm/rm)*std::tgamma(4.5-par[2])/(2*pi*std::tgamma(par[2])*std::tgamma(4.5-par[2]))*
             std::pow((r/rm),(par[2]-2))*std::pow((1+r/rm),(par[2]-4.5));
 }
-
-//rm = 80.0
-//a = (4/s)*np.exp(0.915*(s-1))
-//b = 0.15 + 1/(1+s)
-//C1 = a**(s/b)/(2*np.pi*(gamma(s/b)+ (4*gamma(s+1)/b)/(s*a**(1/b)) ))
-//return C1*(r**(s-2)/rm)*(1+4/s*r/rm)*np.exp(-a*r**(b)/rm)
 
 double Metropolis::Uchakin(int &i){
     int rm = 80.;
@@ -231,7 +226,6 @@ double Metropolis::calc_del_r(){
     return std::sqrt(std::pow(par[0] - y[0],2)+std::pow(par[1] - y[1],2));
 }
 
-#include <mutex>
 std::ofstream iter_("C:\\Qt\\progects\\MC_EAS\\iter.txt");
 std::mutex g_lock;
 void Metropolis::find_min(int N){
@@ -246,20 +240,15 @@ void Metropolis::find_min(int N){
     double step{};
     par_prom = par;
     double loss{}, loss2{};
-    //iter_ << "--------------" << '\n';
     while (j < N){
         loss = L();
         num_par = it(mt);
         gamma = distribution(mt);
         step = (-1+2*gamma)*eps[num_par];
-//        if(num_par==2 and (par[num_par]+step >= 1.8 || par[num_par]+step < 0.6)){
-//            while(num_par==2) num_par = it(mt);
-//        }
         par[num_par] +=step;
         loss2 = L();
         if (loss2 <= loss) {
             par[num_par] -=step;
-        //    iter_ << j << ' ' << par[num_par] << ' ' << loss2 << '\n';
         }
         if(std::abs(loss2-loss) < 1e-9 and flag2!=0) break;
         if(/*std::abs(loss2-loss) < 1e-5 and*/ j > N/2 and flag!=1){
@@ -270,50 +259,7 @@ void Metropolis::find_min(int N){
             for(int i = 0; i < 2; ++i) eps[i]/=2;
             flag2 = 1;
         }
-
-        //if(j%(N/10)==0) std::cout << j << ' ' << par[0] << ' ' << par[1] << ' ' << par[2] << ' ' << loss << '\n';
-        //if(loss <= 1e-3) break;
         j+=1;
-    }
-//    g_lock.lock();
-//    loss = L();
-//    for(int i = 0; i < 4; ++i) par[i] +=eps[i]/10.;
-//    loss2 = L();
-//    double right = loss2-loss;
-//    for(int i = 0; i < 4; ++i) par[i] -=2*eps[i]/10.;
-//    double left = loss - L();
-//    iter_ << right << ' ' << left << '\n';
-//    g_lock.unlock();
-}
-
-double Metropolis::num_grad(int &i){
-    double grad{};
-    par_prom = par;
-    double left_f{}, right_f{};
-    //for(int i = 0; i < 4; ++i){
-        par[i]+=eps_g[i];
-        right_f = L();
-        par[i] -=2*eps_g[i];
-        left_f = L();
-        par = par_prom;
-        grad += (right_f-left_f)/(2*eps_g[i]);
-       // std::cout << right_f << ' ' << left_f << ' ' << grad << '\n';
-       // std::cout << par[0] << ' ' << par[1] << ' ' << par[2] << ' ' << par[3] << '\n';
-    //}
-
-    return grad;
-}
-
-void Metropolis::find_grad(int N){
-    double loss{}, loss2{};
-    double learn = 1;
-    int j{};
-    double f{};
-    while (j < N){
-        for(int i = 0; i < 2; ++i){
-            par[i]-=learn*num_grad(i);
-        }
-       // std::cout << par[0] << ' ' << par[1] << ' ' << par[2] << ' ' << par[3] << '\n';
     }
 }
 
@@ -343,16 +289,10 @@ void Metropolis::find_minf(int N){
         par[num_par] +=step;
         loss2 = L2();
         if (loss2 <= loss) par[num_par] -=step;
-//        if(std::abs(loss2-loss) < 1e-9 and flag2!=0) break;
         if(std::abs(loss2-loss) < 1e-5 and flag!=1){
             for(int i = 0; i < 2; ++i) eps[i]*=0.1;
             flag = 1;
         }
-//        if(std::abs(loss2-loss) < 1e-7 and flag2!=1 and flag!=0){
-//            for(int i = 0; i < 2; ++i) eps[i]*=0.1;
-//            flag2 = 1;
-//        }
-
         //if(j%(N/10)==0) std::cout << j << ' ' << par[0] << ' ' << par[1] << ' ' << par[2] << ' ' << loss << '\n';
         //if(loss <= 1e-3) break;
         j+=1;
@@ -375,31 +315,6 @@ void Metropolis::arr_dir(){
     double tot{};
     int k{};
     double max_ni{};
-//    double *ri = new double[Num_det];
-//    for(int i = 0; i < Num_det; ++i){
-//        ri[i] = (std::pow((x_det[i]-par[0]),2)+std::pow((y_det[i]-par[1]),2));
-//    }
-//    double min_r{};
-//    for(int i = 0; i < Num_det; ++i){
-//        if(ri[i]<min_r){
-//            min_r=ri[i];
-//        }
-//    }
-
-//    for(int i = 0; i < Num_det; ++i){
-//        if(ni[i]>max_ni) max_ni = ni[i];
-//    }
-
-//    for(int i = 0; i < Num_det; ++i){
-//        ni[i]/=max_ni;
-//        ni[i] = std::log10(ni[i]);
-//    }
-
-//    for(int i = 0; i < Num_det; ++i){
-//        if(ni[i]<1.){
-//            tim[i] = -1;
-//        }
-//    }
 
     // Normalization
     for (int i = 0; i < Num_det; ++i) {
