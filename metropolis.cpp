@@ -226,7 +226,7 @@ double Metropolis::calc_del_r(){
     return std::sqrt(std::pow(par[0] - y[0],2)+std::pow(par[1] - y[1],2));
 }
 
-std::ofstream iter_("C:\\Qt\\progects\\MC_EAS\\iter.txt");
+std::ofstream iter_("iter.txt");
 std::mutex g_lock;
 void Metropolis::find_min(int N){
     int j{};
@@ -299,7 +299,7 @@ void Metropolis::find_minf(int N){
     }
 }
 
-std::ofstream f1("C:\\Qt\\progects\\markov\\tot.txt");
+std::ofstream f1("tot.txt");
 void Metropolis::arr_dir(){
     int count{}, u{}, min{};
     double tetha{}, phi{};
