@@ -5,7 +5,6 @@
 **Input data** - no. of particles in mip in each det. [0:no.of det.] + trigger time of det.[no. of det:2*no. of det.] + X, Y, $\theta, \phi$ (from model) <br/>
 **Number of particles, times - int** <br/>
 **Parameters - float** <br/>
-The program has a choice of the LDF approximation.  
 Algorithm based on creation of a Markov chain (a sequence of random events with a finite or countable number of outcomes,
 characterized by the fact that the next element of the sequence depends only on the previous one). 
 After finding the initial approximation of the parameters, we will directly apply the Monte Carlo method. The essence of the method is as follows:
@@ -24,3 +23,4 @@ If $\Im_{j}\leq\Im_{i}$, then the drawing procedure is repeated.
 
 $x^{(i)}\rightarrow x^{(j)}=\ x^{(i)}+\ ∆$ , where $x^{(i)}$ is the coordinate in phase space.
 
+The program has a choice of the LDF approximation and different algorithms of the arrival shower direction reconstruction. 
