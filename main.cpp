@@ -16,8 +16,8 @@ std::vector <double> del_psi;
 std::vector<std::thread> thread_pool;
 
 std::mutex mtx;
-std::ofstream out("C:\\Qt\\progects\\MC_EAS\\pred.txt");
-std::ofstream out1("C:\\Qt\\progects\\MC_EAS\\mod.txt");
+std::ofstream out("pred.txt");
+std::ofstream out1("mod.txt");
 std::string s;
 
 void loop3(int j, std::vector<double> &xx, std::vector<double> &yy, std::vector<int> &xx_t ,std::vector<double> &yy_t)
@@ -29,7 +29,6 @@ void loop3(int j, std::vector<double> &xx, std::vector<double> &yy, std::vector<
     M.start_init();
     M.arr_dir();
     M.find_min(10000); //800
-    //M.find_grad(1000);
 //    M.find_minf(10000);
 //    if(!(M.par[0] > 9.5 or M.par[0] < -9.5 or M.par[1] > 9.5 or M.par[1] < -9.5) and M.par[2] > 0.2 and M.par[3] > 1 and M.par[2] < 2.0  /*and M.angl[0] < 40 and (M.angl[0]!=-1 && M.angl[1]!=-1 )*/){      // отбор внутри границ установки
     del_R.push_back(M.calc_del_r());
@@ -97,16 +96,16 @@ int main(int argc, char **argv)
     std::cout << "Mean "  << MX(del_R) << ' ' << " Mean Square Deviation " << std::sqrt(DX(del_R)) << '\n';
     std::cout << "0.72 quantile: " << quantile(del_R, 0.72) << '\n';
 
-    print(del_R, "C:\\Qt\\progects\\MC_EAS\\del_R.txt");
+    print(del_R, "del_R.txt");
 
     std::cout << "Events direc rec: " << del_psi.size() << ' ' << static_cast<double>(del_psi.size())/count*100 << '\n';
     std::cout << "psi error: " << '\n';
     std::cout << "Mean "  << MX(del_psi) << ' ' << " Mean Square Deviation " << std::sqrt(DX(del_psi)) << '\n';
     std::cout << "0.72 quantile: " << quantile(del_psi, 0.72) << '\n';
-    //print(del_psi, "C:\\Qt\\progects\\MC_EAS\\psi.txt");
+    //print(del_psi, "psi.txt");
 
     std::vector<double> den;
     den = fun_dence(del_R);
-    print(den, "C:\\Qt\\progects\\MC_EAS\\dence.txt");
+    print(den, "dence.txt");
     return 0;
 }
