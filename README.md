@@ -1,2 +1,2 @@
 # Params_Rec
-Reconstruction of Extensive Air Showers parameters with scipy algoritgms
+Reconstruction of Extensive Air Showers parameters with scipy algorithms
